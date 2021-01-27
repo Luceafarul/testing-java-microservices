@@ -1,9 +1,11 @@
 package book.games.boundary;
 
 import book.games.entity.Game;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.persistence.EntityManager;
@@ -13,69 +15,52 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// tag::test[]
-@RunWith(MockitoJUnitRunner.class) // <1>
+@RunWith(MockitoJUnitRunner.class)
 public class GamesTest {
 
     private static final long GAME_ID = 123L;
+    final Games games = new Games();
+    private Game game;
 
-    @Mock // <2>
+    @Mock
     EntityManager entityManager;
+
+    @Before
+    public void setup() {
+        game = new Game();
+        game.setId(GAME_ID);
+        game.setTitle("Zelda");
+    }
 
     @Test
     public void shouldCreateAGame() {
-        final Game game = new Game();
-        game.setId(GAME_ID);
-        game.setTitle("Zelda");
+        when(entityManager.merge(game)).thenReturn(game);
+        games.em = entityManager;
 
-        final Games games = new Games();
+        games.create(game);
 
-        when(entityManager.merge(game)).thenReturn(game); // <3>
-        games.em = entityManager; // <4>
-
-        games.create(game); // <5>
-
-        verify(entityManager).merge(game); // <6>
-
+        verify(entityManager).merge(game);
     }
-    // end::test[]
 
-    // tag::subtest[]
     @Test
     public void shouldFindAGameById() {
-        final Game game = new Game();
-        game.setId(GAME_ID);
-        game.setTitle("Zelda");
-
-        final Games games = new Games();
         when(entityManager.find(Game.class, GAME_ID)).thenReturn(game);
         games.em = entityManager;
 
         final Optional<Game> foundGame = games.findGameById(GAME_ID);
-        // <1>
 
         verify(entityManager).find(Game.class, GAME_ID);
-        assertThat(foundGame).isNotNull().hasValue(game)
-                .usingFieldByFieldValueComparator(); // <2>
+        assertThat(foundGame).isNotNull().hasValue(game).usingFieldByFieldValueComparator();
     }
 
     @Test
     public void shouldReturnAnEmptyOptionalIfElementNotFound() {
-        final Game game = new Game();
-        game.setId(GAME_ID);
-        game.setTitle("Zelda");
-
-        final Games games = new Games();
         when(entityManager.find(Game.class, GAME_ID)).thenReturn(null);
         games.em = entityManager;
 
         final Optional<Game> foundGame = games.findGameById(GAME_ID);
 
         verify(entityManager).find(Game.class, GAME_ID);
-        assertThat(foundGame).isNotPresent(); // <3>
+        assertThat(foundGame).isNotPresent();
     }
-    // end::subtest[]
-
-    // tag::test[]
 }
-// end::test[]

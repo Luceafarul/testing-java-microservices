@@ -4,7 +4,7 @@ import javax.persistence.Embeddable;
 import java.time.LocalDate;
 
 @Embeddable
-public final class ReleaseDate {
+public class ReleaseDate {
 
     private String platformName;
     private LocalDate releaseDate;

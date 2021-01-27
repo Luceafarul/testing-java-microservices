@@ -15,16 +15,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-// tag::service[]
-@Dependent // <1>
+@Dependent
 public class GamesService {
 
-    @EJB // <2>
+    @EJB
     Games games;
 
     @EJB
     IgdbGateway igdbGateway;
-    // end::service[]
 
     public List<SearchResult> searchGames(final String query)
         throws IOException {
@@ -38,25 +36,20 @@ public class GamesService {
         }
 
         return mappedGames;
-
     }
 
-    // tag::service[]
     public Game searchGameById(final long gameId) throws IOException {
-
-        final Optional<Game> foundGame = games.findGameById(gameId); // <3>
+        final Optional<Game> foundGame = games.findGameById(gameId);
         if (isGameInSiteDatabase(foundGame)) {
             return foundGame.get();
         } else {
-            final JsonArray jsonByGameId = igdbGateway
-                .searchGameById(gameId); // <4>
+            final JsonArray jsonByGameId = igdbGateway.searchGameById(gameId);
             final Game game = Game.fromJson(jsonByGameId);
             games.create(game);
             return game;
         }
 
     }
-    // end::service[]
 
     private boolean isGameInSiteDatabase(final Optional<Game>
         foundGame) {
@@ -72,7 +65,4 @@ public class GamesService {
 
         }).collect(Collectors.toList());
     }
-
-    // tag::service[]
 }
-// end::service[]

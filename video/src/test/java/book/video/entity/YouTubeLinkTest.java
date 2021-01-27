@@ -5,21 +5,16 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// tag::test[]
 public class YouTubeLinkTest {
 
     @Test
     public void shouldCalculateEmbedYouTubeLink() {
-        final YoutubeLink youtubeLink = new YoutubeLink("1234");
+        final YoutubeLink youtubeLink = new YoutubeLink("12345");
+        final YouTubeVideoLinkCreator youTubeVideoLinkCreator = new YouTubeVideoLinkCreator();
 
-        final YouTubeVideoLinkCreator youTubeVideoLinkCreator = new
-                YouTubeVideoLinkCreator(); // <1>
-        youtubeLink.setYouTubeVideoLinkCreator
-                (youTubeVideoLinkCreator::createEmbeddedUrl); // <2>
+        youtubeLink.setYouTubeVideoLinkCreator(youTubeVideoLinkCreator::createEmbeddedUrl);
 
-        assertThat(youtubeLink.getEmbedUrl()).hasHost("www.youtube" +
-                ".com").hasPath("/embed/1234");
+        assertThat(youtubeLink.getEmbedUrl()).hasHost("www.youtube.com").hasPath("/embed/12345");
     }
 
 }
-// end::test[]

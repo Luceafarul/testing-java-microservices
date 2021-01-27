@@ -8,21 +8,19 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Optional;
 
-// tag::repo[]
-@Stateless // <1>
+@Stateless
 public class Games {
 
-    @PersistenceContext // <2>
+    @PersistenceContext
     EntityManager em;
 
     public Long create(final Game request) {
-        final Game game = em.merge(request); // <3>
+        final Game game = em.merge(request);
         return game.getId();
     }
 
     public Optional<Game> findGameById(final Long gameId) {
-        Optional<Game> g = Optional.ofNullable(em.find(Game.class,
-            gameId));
+        Optional<Game> g = Optional.ofNullable(em.find(Game.class, gameId));
 
         if (g.isPresent()) {
             //Force load of lazy collections before detach
@@ -37,4 +35,3 @@ public class Games {
     }
 
 }
-// end::repo[]

@@ -22,7 +22,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
-// tag::test[]
 @RunWith(MockitoJUnitRunner.class)
 public class GamesServiceTest {
 
@@ -33,9 +32,7 @@ public class GamesServiceTest {
     IgdbGateway igdbGateway;
 
     @Test
-    public void shouldReturnGameIfItIsCachedInInternalDatabase()
-            throws IOException {
-
+    public void shouldReturnGameIfItIsCachedInInternalDatabase() throws IOException {
         final Game game = new Game();
         game.setId(123L);
         game.setTitle("Zelda");
@@ -49,24 +46,17 @@ public class GamesServiceTest {
 
         final Game foundGame = gamesService.searchGameById(123L);
         assertThat(foundGame).isEqualToComparingFieldByField(game);
-        // <1>
-        verify(igdbGateway, times(0)).searchGameById(anyInt()); // <2>
+        verify(igdbGateway, times(0)).searchGameById(anyInt());
         verify(games).findGameById(123L);
 
     }
-    // end::test[]
 
-    // tag::subtest[]
     @Test
-    public void
-    shouldReturnGameFromIgdbSiteIfGameIsNotInInternalDatabase()
-            throws IOException {
-
+    public void shouldReturnGameFromIgdbSiteIfGameIsNotInInternalDatabase() throws IOException {
         final JsonArray returnedGame = createTestJsonArray();
 
         when(games.findGameById(123L)).thenReturn(Optional.empty());
-        when(igdbGateway.searchGameById(123L)).thenReturn
-                (returnedGame);
+        when(igdbGateway.searchGameById(123L)).thenReturn(returnedGame);
 
         final GamesService gamesService = new GamesService();
         gamesService.games = games;
@@ -75,47 +65,42 @@ public class GamesServiceTest {
         final Game foundGame = gamesService.searchGameById(123L);
         assertThat(foundGame.getTitle()).isEqualTo("Battlefield 4");
 
+        Assertions.assertThat(foundGame.getReleaseDates())
+            .hasSize(1)
+            .extracting("platformName", "releaseDate")
+            .contains(tuple(
+                "PlayStation 3",
+                LocalDate.of(2013, 10, 29))
+            );
 
-        Assertions.assertThat(foundGame.getReleaseDates()) // <1>
-                .hasSize(1).extracting("platformName",
-                "releaseDate").contains(tuple("PlayStation 3",
-                LocalDate.of(2013, 10, 29)));
+        assertThat(foundGame.getDevelopers()).hasSize(1).contains("EA Digital Illusions CE");
 
-        assertThat(foundGame.getDevelopers()).hasSize(1).contains
-                ("EA Digital Illusions CE");
+        assertThat(foundGame.getPublishers()).hasSize(1).contains("Electronic Arts");
 
-        assertThat(foundGame.getPublishers()).hasSize(1).contains
-                ("Electronic Arts");
-
-        verify(games).create(anyObject()); // <2>
-        verify(igdbGateway).searchGameById(123L); // <3>
-
+        verify(games).create(any());
+        verify(igdbGateway).searchGameById(123L);
+        verify(igdbGateway, times(1)).searchGameById(123L);
     }
-
-    // end::subtest[]
 
     private JsonArray createTestJsonArray() {
         final String content = "[\n" + "   {\n" + "      " +
-                "\"id\":123,\n" + "      \"name\":\"Battlefield " +
-                "4\",\n" + "      \"release_dates\":[\n" + "       " +
-                "" + "  {\n" + "            " +
-                "\"platform_name\":\"PlayStation 3\",\n" + "       " +
-                "" + "     \"release_date\":\"2013-10-29\"\n" + "  " +
-                "     " + "  }\n" + "      ],\n" + "      " +
-                "\"companies\":[\n" + "         {\n" + "           " +
-                " \"developer\":true," + "\n" + "            " +
-                "\"publisher\":false,\n" + "    " + "        " +
-                "\"name\":\"EA Digital Illusions CE\"\n" + "       " +
-                "  },\n" + "         {\n" + "            " +
-                "\"developer\":false,\n" + "            " +
-                "\"publisher\":true,\n" + "            " +
-                "\"name\":\"Electronic Arts\"\n" + "         }\n" +
-                "      ]\n" + "   }\n" + "]";
+            "\"id\":123,\n" + "      \"name\":\"Battlefield " +
+            "4\",\n" + "      \"release_dates\":[\n" + "       " +
+            "" + "  {\n" + "            " +
+            "\"platform_name\":\"PlayStation 3\",\n" + "       " +
+            "" + "     \"release_date\":\"2013-10-29\"\n" + "  " +
+            "     " + "  }\n" + "      ],\n" + "      " +
+            "\"companies\":[\n" + "         {\n" + "           " +
+            " \"developer\":true," + "\n" + "            " +
+            "\"publisher\":false,\n" + "    " + "        " +
+            "\"name\":\"EA Digital Illusions CE\"\n" + "       " +
+            "  },\n" + "         {\n" + "            " +
+            "\"developer\":false,\n" + "            " +
+            "\"publisher\":true,\n" + "            " +
+            "\"name\":\"Electronic Arts\"\n" + "         }\n" +
+            "      ]\n" + "   }\n" + "]";
 
         return Json.createReader(new StringReader(content))
-                .readArray();
+            .readArray();
     }
-
-    // tag::test[]
 }
-// end::test[]

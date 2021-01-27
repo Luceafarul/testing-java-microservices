@@ -7,8 +7,7 @@ import java.net.URL;
 // tag::test[]
 public class YouTubeVideoLinkCreator {
 
-    private static final String EMBED_URL = "https://www.youtube" +
-            ".com/embed/";
+    private static final String EMBED_URL = "https://www.youtube.com/embed/";
 
     public URL createEmbeddedUrl(final String videoId) {
         try {

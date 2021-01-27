@@ -27,7 +27,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// tag::test[]
 @RunWith(MockitoJUnitRunner.class)
 public class GamesResourceTest {
 
@@ -38,91 +37,76 @@ public class GamesResourceTest {
     ExecutorServiceProducer executorServiceProducer;
 
     @Mock
-    AsyncResponse asyncResponse; // <1>
+    AsyncResponse asyncResponse;
 
-    @Captor // <2>
-            ArgumentCaptor<Response> argumentCaptorResponse;
+    @Captor
+    ArgumentCaptor<Response> argumentCaptorResponse;
 
-    private static final ExecutorService executorService =
-            Executors.newSingleThreadExecutor(); // <3>
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Before
     public void setupExecutorServiceProducer() {
-        when(executorServiceProducer.getManagedExecutorService())
-                .thenReturn(executorService);
+        when(executorServiceProducer.getManagedExecutorService()).thenReturn(executorService);
     }
 
-    @AfterClass // <4>
+    @AfterClass
     public static void stopExecutorService() {
         executorService.shutdown();
     }
 
     @Test
-    public void restAPIShouldSearchGamesByTheirNames() throws
-            IOException, InterruptedException {
-
+    public void restAPIShouldSearchGamesByTheirNames() throws IOException, InterruptedException {
         final GamesResource gamesResource = new GamesResource();
-        gamesResource.managedExecutorService =
-                executorServiceProducer;
+        gamesResource.managedExecutorService = executorServiceProducer;
         gamesResource.gamesService = gamesService;
 
-        when(gamesService.searchGames("zelda")).thenReturn
-                (getSearchResults());
+        when(gamesService.searchGames("zelda")).thenReturn(getSearchResults());
 
         gamesResource.searchGames(asyncResponse, "zelda");
-        executorService.awaitTermination(2, TimeUnit.SECONDS); // <5>
+        executorService.awaitTermination(2, TimeUnit.SECONDS);
 
-        verify(asyncResponse).resume(argumentCaptorResponse.capture
-                ()); // <6>
+        verify(asyncResponse).resume(argumentCaptorResponse.capture());
 
-        final Response response = argumentCaptorResponse.getValue()
-                ; // <7>
+        final Response response = argumentCaptorResponse.getValue();
 
-        assertThat(response.getStatusInfo().getFamily()).isEqualTo
-                (Response.Status.Family.SUCCESSFUL);
+        assertThat(response.getStatusInfo().getFamily())
+            .isEqualTo(Response.Status.Family.SUCCESSFUL);
 
-        assertThat((JsonArray) response.getEntity()).hasSize(2)
-                .containsExactlyInAnyOrder(Json.createObjectBuilder
-                        ().add("id", 1).add("name", "The Legend Of " +
-                        "" + "Zelda").build(), Json
-                        .createObjectBuilder().add("id", 2).add
-                                ("name", "Zelda II: The " +
-                                        "Adventure of Link").build()
-
-        );
+        assertThat((JsonArray) response.getEntity())
+            .hasSize(2)
+            .containsExactlyInAnyOrder(
+                Json.createObjectBuilder()
+                    .add("id", 1)
+                    .add("name", "The Legend Of Zelda")
+                    .build(),
+                Json.createObjectBuilder()
+                    .add("id", 2)
+                    .add("name", "Zelda II: The Adventure of Link")
+                    .build()
+            );
     }
 
-    // end::test[]
-
-    // tag::subtest[]
     @Test
-    public void exceptionShouldBePropagatedToCaller() throws
-            IOException, InterruptedException {
+    public void exceptionShouldBePropagatedToCaller() throws IOException, InterruptedException {
         final GamesResource gamesResource = new GamesResource();
-        gamesResource.managedExecutorService =
-                executorServiceProducer;
+        gamesResource.managedExecutorService = executorServiceProducer;
         gamesResource.gamesService = gamesService;
 
-        when(gamesService.searchGames("zelda")).thenThrow
-                (IOException.class); // <1>
+        when(gamesService.searchGames("zelda")).thenThrow(IOException.class);
 
         gamesResource.searchGames(asyncResponse, "zelda");
         executorService.awaitTermination(1, TimeUnit.SECONDS);
 
         verify(gamesService).searchGames("zelda");
-        verify(asyncResponse).resume(any(IOException.class)); // <2>
+        verify(asyncResponse).resume(any(IOException.class));
     }
-    // end::subtest[]
 
     private List<SearchResult> getSearchResults() {
         final List<SearchResult> searchResults = new ArrayList<>();
 
         searchResults.add(new SearchResult(1, "The Legend Of Zelda"));
-        searchResults.add(new SearchResult(2, "Zelda II: The " +
-                "Adventure of Link"));
+        searchResults.add(new SearchResult(2, "Zelda II: The Adventure of Link"));
 
         return searchResults;
     }
-    // tag::test[]
 }
-//end::test[]
