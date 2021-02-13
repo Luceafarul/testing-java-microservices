@@ -35,6 +35,7 @@ dependencies {
     testCompile 'org.assertj:assertj-core:3.5.2'
     compile 'com.google.apis:google-api-services-youtube:v3-rev183-1.22.0'
     compile 'org.springframework.boot:spring-boot-starter-web:1.4.5.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-test:1.4.5.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-undertow:1.4.5.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-actuator:1.4.5.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-data-redis:1.4.5.RELEASE'

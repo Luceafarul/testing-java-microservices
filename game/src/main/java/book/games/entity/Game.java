@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-// tag::orm[]
 @Entity
 public class Game implements Serializable {
 
@@ -23,7 +22,7 @@ public class Game implements Serializable {
     @Column(name = "version")
     private int version;
 
-    @Column // <1>
+    @Column
     private String title;
 
     @Column
@@ -40,7 +39,6 @@ public class Game implements Serializable {
     @ElementCollection
     @CollectionTable(name = "Developer", joinColumns = @JoinColumn(name = "OwnerId"))
     private List<String> developers = new ArrayList<>();
-    // end::orm[]
 
     public Long getId() {
         return this.id;
@@ -138,9 +136,7 @@ public class Game implements Serializable {
         this.publishers.add(publisher);
     }
 
-    // tag::domain[]
-
-    public JsonObject convertToJson() { // <2>
+    public JsonObject convertToJson() {
 
         final JsonArrayBuilder developers = Json.createArrayBuilder();
         this.getDevelopers().forEach(developers::add);
@@ -164,7 +160,6 @@ public class Game implements Serializable {
                 .add("publishers", publishers).add("release_dates",
                         releaseDates).build();
     }
-    // end::domain[]
 
     public static Game fromJson(final JsonArray jsonObject) {
         final Game game = new Game();
@@ -218,7 +213,4 @@ public class Game implements Serializable {
 
         return game;
     }
-
-    // tag::orm[]
 }
-// end::orm[]

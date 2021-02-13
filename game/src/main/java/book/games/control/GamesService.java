@@ -24,8 +24,7 @@ public class GamesService {
     @EJB
     IgdbGateway igdbGateway;
 
-    public List<SearchResult> searchGames(final String query)
-        throws IOException {
+    public List<SearchResult> searchGames(final String query) throws IOException {
 
         final JsonArray games = igdbGateway.searchGames(query);
 

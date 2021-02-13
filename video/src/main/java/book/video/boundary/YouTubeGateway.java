@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
 @Service
 public class YouTubeGateway {
 
@@ -31,26 +30,24 @@ public class YouTubeGateway {
     private YouTube youtube;
 
     @Autowired
-    public YouTubeGateway(final YouTubeVideoLinkCreator
-                                      youTubeVideoLinkCreator) {
+    public YouTubeGateway(final YouTubeVideoLinkCreator youTubeVideoLinkCreator) {
         this.youTubeVideoLinkCreator = youTubeVideoLinkCreator;
     }
 
     @PostConstruct
     public void initClient() {
-        this.apiKey = Optional.ofNullable(System.getenv
-                ("YOUTUBE_API_KEY")).orElse(Optional.ofNullable
-                (System.getProperty("YOUTUBE_API_KEY")).orElseGet(
-                        () -> "AIzaSyDIQ0uq4ZpV-X4wBCmo4xea0aJRMoyG7kI"));
-        this.youtube = new YouTube.Builder(new NetHttpTransport(),
-                new JacksonFactory(), null).setApplicationName
-                ("Gamer Video Microservice").build();
+        this.apiKey = Optional.ofNullable(System.getenv("YOUTUBE_API_KEY"))
+            .orElse(Optional.ofNullable(System.getProperty("YOUTUBE_API_KEY"))
+                .orElse("AIzaSyDIQ0uq4ZpV-X4wBCmo4xea0aJRMoyG7kI"));
+        this.youtube = new YouTube.Builder(
+            new NetHttpTransport(),
+            new JacksonFactory(), null)
+            .setApplicationName("Gamer Video Microservice")
+            .build();
     }
 
-    public YoutubeLinks findYoutubeLinks(final String gameName)
-            throws IOException {
-        final YouTube.Search.List search = youtube.search().list
-                ("id,snippet");
+    public YoutubeLinks findYoutubeLinks(final String gameName) throws IOException {
+        final YouTube.Search.List search = youtube.search().list("id,snippet");
         search.setKey(apiKey);
         search.setQ(gameName);
 
@@ -59,23 +56,21 @@ public class YouTubeGateway {
         search.setFields("items(id/kind,id/videoId,snippet/title)");
         search.setOrder("rating");
 
-
         final SearchListResponse searchResponse = search.execute();
-        final List<SearchResult> searchResultList = searchResponse
-                .getItems();
+        final List<SearchResult> searchResultList = searchResponse.getItems();
 
-        final Set<YoutubeLink> collect = searchResultList.stream()
-                .filter(searchResult -> "youtube#video".equals
-                        (searchResult.getId().getKind())).map
-                        (converterToYoutubeLink).peek(youtubeLink
-                        -> youtubeLink.setYouTubeVideoLinkCreator
-                        (youTubeVideoLinkCreator::createEmbeddedUrl)).collect(Collectors.toSet());
+        final Set<YoutubeLink> collect = searchResultList
+            .stream()
+            .filter(searchResult -> "youtube#video".equals(searchResult.getId().getKind()))
+            .map(converterToYoutubeLink)
+            .peek(youtubeLink ->
+                youtubeLink.setYouTubeVideoLinkCreator(youTubeVideoLinkCreator::createEmbeddedUrl)
+            )
+            .collect(Collectors.toSet());
 
         return new YoutubeLinks(collect);
     }
 
-    private static final Function<SearchResult, YoutubeLink>
-            converterToYoutubeLink = searchResult -> new
-            YoutubeLink(searchResult.getId().getVideoId());
-
+    private static final Function<SearchResult, YoutubeLink> converterToYoutubeLink =
+        searchResult -> new YoutubeLink(searchResult.getId().getVideoId());
 }

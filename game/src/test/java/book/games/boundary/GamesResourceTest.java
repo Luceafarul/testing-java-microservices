@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,6 +58,7 @@ public class GamesResourceTest {
     @Test
     public void restAPIShouldSearchGamesByTheirNames() throws IOException, InterruptedException {
         final GamesResource gamesResource = new GamesResource();
+
         gamesResource.managedExecutorService = executorServiceProducer;
         gamesResource.gamesService = gamesService;
 
@@ -89,6 +91,7 @@ public class GamesResourceTest {
     @Test
     public void exceptionShouldBePropagatedToCaller() throws IOException, InterruptedException {
         final GamesResource gamesResource = new GamesResource();
+
         gamesResource.managedExecutorService = executorServiceProducer;
         gamesResource.gamesService = gamesService;
 

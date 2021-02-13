@@ -34,54 +34,50 @@ public class GamesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @javax.ejb.Asynchronous // <3>
-    public void searchGames(@Suspended final AsyncResponse
-        response, // <4>
-        @NotNull @QueryParam("query") final
-        String query) {
-
+    @javax.ejb.Asynchronous
+    public void searchGames(
+        @Suspended final AsyncResponse response,
+        @NotNull @QueryParam("query") final String query
+    ) {
         response.setTimeoutHandler(asyncResponse -> asyncResponse
-            .resume(Response.status(Response.Status
-                .SERVICE_UNAVAILABLE).entity("TIME OUT !")
+            .resume(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                .entity("TIME OUT !")
                 .build()));
         response.setTimeout(15, TimeUnit.SECONDS);
 
         managedExecutorService.getManagedExecutorService().submit(
-            () -> { // <5>
+            () -> {
                 try {
-                    final Collector<JsonObject, ?, JsonArrayBuilder>
-                        jsonCollector = Collector.of
-                        (Json::createArrayBuilder,
-                            JsonArrayBuilder::add, (left,
-                                right) -> {
+                    final Collector<JsonObject, ?, JsonArrayBuilder> jsonCollector =
+                        Collector.of(Json::createArrayBuilder, JsonArrayBuilder::add,
+                            (left, right) -> {
                                 left.add(right);
                                 return left;
                             });
 
-                    final List<SearchResult> searchResults =
-                        gamesService.searchGames(query);
+                    final List<SearchResult> searchResults = gamesService.searchGames(query);
 
                     final JsonArrayBuilder mappedGames = searchResults
-                        .stream().map(SearchResult::convertToJson)
+                        .stream()
+                        .map(SearchResult::convertToJson)
                         .collect(jsonCollector);
 
-                    final Response.ResponseBuilder ok = Response.ok
-                        (mappedGames.build());
-                    response.resume(ok.build()); // <6>
+                    final Response.ResponseBuilder ok = Response.ok(mappedGames.build());
+                    response.resume(ok.build());
                 } catch (final Throwable e) {
-                    response.resume(e); // <7>
+                    response.resume(e);
                 }
             });
     }
-    // end::jaxrs[]
 
     @GET
     @Path("{gameId}")
     @Produces(MediaType.APPLICATION_JSON)
     @javax.ejb.Asynchronous
-    public void searchGameById(@Suspended final AsyncResponse
-        response, @PathParam
-        ("gameId") final long gameId) {
+    public void searchGameById(
+        @Suspended final AsyncResponse response,
+        @PathParam("gameId") final long gameId
+    ) {
 
         response.setTimeoutHandler(asyncResponse -> asyncResponse
             .resume(Response.status(Response.Status
@@ -104,7 +100,4 @@ public class GamesResource {
                 }
             });
     }
-
-    // tag::jaxrs[]
 }
-// end::jaxrs[]

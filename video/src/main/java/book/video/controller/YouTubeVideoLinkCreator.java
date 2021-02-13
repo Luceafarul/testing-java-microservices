@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-// tag::test[]
 public class YouTubeVideoLinkCreator {
 
     private static final String EMBED_URL = "https://www.youtube.com/embed/";
@@ -17,4 +16,3 @@ public class YouTubeVideoLinkCreator {
         }
     }
 }
-// end::test[]
