@@ -38,7 +38,7 @@ public class YouTubeGateway {
     public void initClient() {
         this.apiKey = Optional.ofNullable(System.getenv("YOUTUBE_API_KEY"))
             .orElse(Optional.ofNullable(System.getProperty("YOUTUBE_API_KEY"))
-                .orElse("AIzaSyDIQ0uq4ZpV-X4wBCmo4xea0aJRMoyG7kI"));
+                .orElse("AIzaSyATBB4ZBxbQgEeriKK-iSFWr85iZKZ9CmE"));
         this.youtube = new YouTube.Builder(
             new NetHttpTransport(),
             new JacksonFactory(), null)

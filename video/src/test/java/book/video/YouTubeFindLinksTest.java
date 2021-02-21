@@ -1,23 +1,59 @@
 package book.video;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import book.video.boundary.YouTubeGateway;
+import book.video.controller.YouTubeVideoLinkCreator;
+import book.video.entity.YoutubeLink;
 import book.video.entity.YoutubeLinks;
 import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@RunWith(SpringRunner.class)
+@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class YouTubeFindLinksTest {
-    @Autowired
+
+    @Mock
     private YouTubeGateway youTubeGateway;
 
     @Test
     public void shouldReturnFirstThreeLinksForGame() throws IOException {
         String game = "zelda";
+
+        when(youTubeGateway.findYoutubeLinks(game)).thenReturn(zeldaResult());
+
         YoutubeLinks result = youTubeGateway.findYoutubeLinks(game);
 
-        result.getYoutubeLinks().forEach(System.out::println);
+        assertThat(result.getYoutubeLinks()).hasSize(3);
+        assertThat(result.getYoutubeLinks().stream().map(YoutubeLink::getVideoId))
+            .containsOnly(
+                "530E9AwOsO0",
+                "gbNitSCkAdY",
+                "Ej31TPUzp_Q"
+            );
+    }
+
+
+    private YoutubeLinks zeldaResult() {
+        final YouTubeVideoLinkCreator youTubeVideoLinkCreator = new YouTubeVideoLinkCreator();
+
+        Set<YoutubeLink> result = Stream.of(
+            new YoutubeLink("530E9AwOsO0"),
+            new YoutubeLink("gbNitSCkAdY"),
+            new YoutubeLink("Ej31TPUzp_Q")
+        ).peek(youtubeLink ->
+            youtubeLink.setYouTubeVideoLinkCreator(youTubeVideoLinkCreator::createEmbeddedUrl)
+        ).collect(Collectors.toSet());
+
+
+        return new YoutubeLinks(result);
     }
 }
